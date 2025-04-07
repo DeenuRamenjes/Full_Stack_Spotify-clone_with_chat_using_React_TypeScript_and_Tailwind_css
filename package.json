@@ -5,11 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build":"npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
-    "start":"npm start --prefix backend"
+    "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "npm start --prefix backend"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "music-metadata": "^11.0.5"
+  }
 }

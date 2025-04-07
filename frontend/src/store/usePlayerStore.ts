@@ -21,7 +21,7 @@ interface PlayerState {
   setQueue: (songs: Song[]) => void;
 }
 
-const usePlayerStore = create<PlayerState>((set, get) => ({
+const usePlayerStore = create<PlayerState>((set) => ({
   currentSong: null,
   isPlaying: false,
   volume: 1,

@@ -36,46 +36,45 @@ const AddSongDialog = () => {
     const audioInputRef = useRef<HTMLInputElement>(null)
     const imageInputRef = useRef<HTMLInputElement>(null)
 
-    const handleSubmit= async ()=>{
-        setIsLoading(true)
-        try{
-            if(!files.audio || !files.image){
-                return toast.error("Please select an audio and an image")
+    const handleSubmit = async () => {
+        setIsLoading(true);
+        try {
+            if (!files.audio || !files.image) {
+                return toast.error("Please select an audio and an image");
             }
-            const formData = new FormData()
-            formData.append("title", newSong.title)
-            formData.append("artist", newSong.artist)
-            formData.append("duration", newSong.duration)
-            if(newSong.album && newSong.album !== "none"){
-                formData.append("albumId", newSong.album)
+
+            const formData = new FormData();
+            formData.append("title", newSong.title);
+            formData.append("artist", newSong.artist);
+            formData.append("duration", newSong.duration);
+            if (newSong.album && newSong.album !== "none") {
+                formData.append("albumId", newSong.album);
             }
-            formData.append("audioFile", files.audio)
-            formData.append("imageFile", files.image)
-            await axiosInstance.post("/admin/songs", formData,{
-                headers:{
-                    "Content-Type": "multipart/form-data"
-                }
-            })
+            formData.append("audioFile", files.audio);
+            formData.append("imageFile", files.image);
+
+            // Don't set Content-Type header, let the browser set it with the correct boundary
+            await axiosInstance.post("/admin/songs", formData);
+
             setNewSong({
                 title: "",
                 artist: "",
                 album: "",
                 duration: "0"
-            })
+            });
             setFiles({
-                audio:null,
-                image:null
-            })
-            toast.success("Song added successfully")
+                audio: null,
+                image: null
+            });
+            setSongDialogOpen(false);
+            toast.success("Song added successfully");
+        } catch (error: any) {
+            console.error("Error uploading song:", error);
+            toast.error(error.response?.data?.message || "Failed to add song");
+        } finally {
+            setIsLoading(false);
         }
-        catch(error){
-            console.error("Error uploading song:", error)
-            toast.error("Failed to add song")
-        }
-        finally{
-            setIsLoading(false)
-        }
-    }
+    };
 
 
   return (

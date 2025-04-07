@@ -26,29 +26,70 @@ app.use(cors(
 ));
 
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(clerkMiddleware())
+
+// Create temp directory if it doesn't exist
+const tempDir = path.join(__dirname, 'temp');
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+}
+
+// Configure file upload middleware
 app.use(fileUpload({
     useTempFiles: true,
-    useFileDir:path.join(__dirname, 'temp'),
+    tempFileDir: tempDir,
     createParentPath: true,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
+    limits: { 
+        fileSize: 50 * 1024 * 1024, // 50 MB
+        files: 2 // Maximum number of files
+    },
+    abortOnLimit: false, // Don't abort on limit, return error instead
+    safeFileNames: true,
+    preserveExtension: true,
+    debug: process.env.NODE_ENV === 'development',
+    parseNested: true // Enable nested form data parsing
 }));
 
-//delete temp files automatically
-const tempDir = path.join(process.cwd(), "tmp");
+// Error handler for file upload limits
+app.use((err, req, res, next) => {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({
+            message: 'File size is too large. Maximum size is 50MB.'
+        });
+    }
+    if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({
+            message: 'Too many files. Maximum 2 files allowed.'
+        });
+    }
+    if (err.message === 'Request is not eligible for file upload!') {
+        return res.status(400).json({
+            message: 'Invalid request format. Please ensure you are sending files as multipart/form-data.'
+        });
+    }
+    next(err);
+});
+
+// Clean up temp files every hour
 cron.schedule("0 * * * *", () => {
-	if (fs.existsSync(tempDir)) {
-		fs.readdir(tempDir, (err, files) => {
-			if (err) {
-				console.log("error", err);
-				return;
-			}
-			for (const file of files) {
-				fs.unlink(path.join(tempDir, file), (err) => {});
-			}
-		});
-	}
+    if (fs.existsSync(tempDir)) {
+        fs.readdir(tempDir, (err, files) => {
+            if (err) {
+                console.error("Error reading temp directory:", err);
+                return;
+            }
+            for (const file of files) {
+                const filePath = path.join(tempDir, file);
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        console.error("Error deleting temp file:", err);
+                    }
+                });
+            }
+        });
+    }
 });
 
 //Routes

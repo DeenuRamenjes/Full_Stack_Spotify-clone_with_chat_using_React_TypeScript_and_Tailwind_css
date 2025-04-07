@@ -39,13 +39,13 @@ const ChatPage = () => {
 				<UsersList />
 
 				{/* chat message */}
-				<div className='flex flex-col h-full'>
+				<div className='flex flex-col h-full relative'>
 					{selectedUser ? (
 						<>
 							<ChatHeader />
 
 							{/* Messages */}
-							<ScrollArea className='h-[calc(100vh-340px)]'>
+							<ScrollArea className='flex-1 pb-4'>
 								<div className='p-4 space-y-4'>
 									{messages.map((message) => (
 										<div
@@ -79,7 +79,9 @@ const ChatPage = () => {
 								</div>
 							</ScrollArea>
 
-							<MessageInput />
+							<div className='sticky bottom-0'>
+								<MessageInput />
+							</div>
 						</>
 					) : (
 						<NoConversationPlaceholder />

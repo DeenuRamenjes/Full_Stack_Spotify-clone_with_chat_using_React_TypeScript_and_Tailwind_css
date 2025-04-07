@@ -17,17 +17,17 @@ const MessageInput = () => {
 	};
 
 	return (
-		<div className='p-4 mt-auto border-t border-zinc-800'>
-			<div className='flex gap-2'>
+		<div className='p-3 border-t border-zinc-800 bg-zinc-900/95 backdrop-blur-sm'>
+			<div className='flex gap-2 items-center'>
 				<Input
 					placeholder='Type a message'
 					value={newMessage}
 					onChange={(e) => setNewMessage(e.target.value)}
-					className='bg-zinc-800 border-none'
+					className='bg-zinc-800 border-none flex-1 h-10'
 					onKeyDown={(e) => e.key === "Enter" && handleSend()}
 				/>
 
-				<Button size={"icon"} onClick={handleSend} disabled={!newMessage.trim()}>
+				<Button size={"icon"} onClick={handleSend} disabled={!newMessage.trim()} className='h-10 w-10'>
 					<Send className='size-4' />
 				</Button>
 			</div>

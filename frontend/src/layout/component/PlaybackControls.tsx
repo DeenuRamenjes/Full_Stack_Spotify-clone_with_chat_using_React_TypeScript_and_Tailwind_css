@@ -1,6 +1,6 @@
 import { usePlayerStore } from "@/stores/usePlayerStore"
 import { useState,useRef, useEffect } from "react"
-import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
+import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
@@ -8,7 +8,7 @@ import { Slider } from "@/components/ui/slider";
 
 
 const PlaybackControls = () => {
-    const {currentSong,isPlaying,togglePlay,playNext,playPrevious}=usePlayerStore()
+    const {currentSong,isPlaying,togglePlay,playNext,playPrevious,isMuted,toggleMute}=usePlayerStore()
 
     const [currentTime,setCurrentTime]=useState(0)
     const [duration, setDuration]=useState(0)
@@ -55,11 +55,17 @@ const PlaybackControls = () => {
       }
     }
 
+    const handleVolumeChange = (value: number[]) => {
+      setVolume(value[0] / 100);
+      if (audioRef.current) {
+        audioRef.current.volume = value[0] / 100;
+      }
+    };
 
   return (
-    <footer className='h-20 sm:h-24 bg-zinc-900 border-t border-zinc-800 px-4'>
+    <footer className='h-20 sm:h-24 bg-zinc-900 border-t border-zinc-800 px-2 sm:px-4'>
 			<div className='flex justify-between items-center h-full max-w-[1800px] mx-auto'>
-				{/* currently playing song */}
+				{/* currently playing song - hidden on mobile */}
 				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%]'>
 					{currentSong && (
 						<>
@@ -80,9 +86,9 @@ const PlaybackControls = () => {
 					)}
 				</div>
 
-				{/* player controls*/}
-				<div className='flex flex-col items-center gap-2 flex-1 max-w-full sm:max-w-[45%]'>
-					<div className='flex items-center gap-4 sm:gap-6'>
+				{/* player controls - centered on mobile */}
+				<div className='flex-1 flex flex-col items-center justify-center gap-1 sm:gap-4'>
+					<div className='flex items-center gap-2 sm:gap-6'>
 						<Button
 							size='icon'
 							variant='ghost'
@@ -103,12 +109,13 @@ const PlaybackControls = () => {
 
 						<Button
 							size='icon'
-							className='bg-white hover:bg-white/80 text-black rounded-full h-8 w-8'
+							className='bg-white hover:bg-white/80 text-black rounded-full h-10 w-10 sm:h-8 sm:w-8'
 							onClick={togglePlay}
 							disabled={!currentSong}
 						>
 							{isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
 						</Button>
+
 						<Button
 							size='icon'
 							variant='ghost'
@@ -118,6 +125,7 @@ const PlaybackControls = () => {
 						>
 							<SkipForward className='h-4 w-4' />
 						</Button>
+
 						<Button
 							size='icon'
 							variant='ghost'
@@ -127,7 +135,8 @@ const PlaybackControls = () => {
 						</Button>
 					</div>
 
-					<div className='hidden sm:flex items-center gap-2 w-full'>
+					{/* Progress bar - simplified on mobile */}
+					<div className='hidden sm:flex items-center gap-2 w-full max-w-[500px]'>
 						<div className='text-xs text-zinc-400'>{formatTime(currentTime)}</div>
 						<Slider
 							value={[currentTime]}
@@ -139,36 +148,30 @@ const PlaybackControls = () => {
 						<div className='text-xs text-zinc-400'>{formatTime(duration)}</div>
 					</div>
 				</div>
-				{/* volume controls */}
-				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end'>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<Mic2 className='h-4 w-4' />
-					</Button>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<ListMusic className='h-4 w-4' />
-					</Button>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<Laptop2 className='h-4 w-4' />
-					</Button>
 
-					<div className='flex items-center gap-2'>
-						<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
+				{/* volume controls - hidden on mobile */}
+				<div className='hidden sm:flex items-center gap-2 w-[30%] justify-end'>
+					<Button
+						size='icon'
+						variant='ghost'
+						className='hover:text-white text-zinc-400'
+						onClick={toggleMute}
+					>
+						{isMuted ? (
+							<VolumeX className='h-4 w-4' />
+						) : volume > 0.5 ? (
+							<Volume2 className='h-4 w-4' />
+						) : (
 							<Volume1 className='h-4 w-4' />
-						</Button>
-
-						<Slider
-							value={[volume]}
-							max={100}
-							step={1}
-							className='w-24 hover:cursor-grab active:cursor-grabbing'
-							onValueChange={(value) => {
-								setVolume(value[0]);
-								if (audioRef.current) {
-									audioRef.current.volume = value[0] / 100;
-								}
-							}}
-						/>
-					</div>
+						)}
+					</Button>
+					<Slider
+						value={[volume * 100]}
+						max={100}
+						step={1}
+						className='w-24 hover:cursor-grab active:cursor-grabbing'
+						onValueChange={handleVolumeChange}
+					/>
 				</div>
 			</div>
 		</footer>

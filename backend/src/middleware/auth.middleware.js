@@ -12,12 +12,14 @@ export const protectRoute = async (req, res, next) => {
 export const requireAdmin = async (req, res, next) => {
     try {
         const currentUser = await clerkClient.users.getUser(req.auth.userId);
-        const isAdmin = process.env.ADMIN_EMAIL === currentUser.primaryEmailAddress?.emailAddress;
+        const adminEmails = process.env.ADMIN_EMAILS?.split(',') || [];
+        const isAdmin = adminEmails.includes(currentUser.primaryEmailAddress?.emailAddress);
         if (!isAdmin) {
-            return res.status(403).json({ message: "Forbidden-You don't have access " });
+            return res.status(403).json({ message: "Forbidden-You don't have access" });
         }
         next();
     } catch (error) {
         console.error("Error in checking admin",error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }

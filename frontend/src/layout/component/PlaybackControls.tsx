@@ -1,6 +1,6 @@
 import { usePlayerStore } from "@/stores/usePlayerStore"
 import { useState,useRef, useEffect } from "react"
-import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1, Volume2, VolumeX } from "lucide-react";
+import { Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
@@ -12,17 +12,9 @@ const PlaybackControls = () => {
 
     const [currentTime,setCurrentTime]=useState(0)
     const [duration, setDuration]=useState(0)
-    const [volume,setVolume]=useState(75)
+    const [volume,setVolume]=useState(1)
     
     const audioRef=useRef<HTMLAudioElement | null>(null)
-
-    const formatTime = (seconds: number) => {
-      const minutes = Math.floor(seconds / 60);
-      const remainingSeconds = Math.floor(seconds % 60);
-      return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-    };
-
-    
 
     useEffect(() => {
       audioRef.current=document.querySelector('audio')
@@ -49,9 +41,23 @@ const PlaybackControls = () => {
       }
     },[currentSong])
 
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume;
+            audioRef.current.muted = isMuted;
+        }
+    }, [volume, isMuted]);
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    };
+
     const handleSeek =(value:number[]) => {
       if(audioRef.current) {
         audioRef.current.currentTime=value[0]
+        setCurrentTime(value[0])
       }
     }
 

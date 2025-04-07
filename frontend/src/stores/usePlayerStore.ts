@@ -5,6 +5,7 @@ import { useChatStore } from "./useChatStore";
 interface PlayerStore {
 	currentSong: Song | null;
 	isPlaying: boolean;
+	isMuted: boolean;
 	queue: Song[];
 	currentIndex: number;
 
@@ -12,6 +13,7 @@ interface PlayerStore {
 	playAlbum: (songs: Song[], startIndex?: number) => void;
 	setCurrentSong: (song: Song | null) => void;
 	togglePlay: () => void;
+	toggleMute: () => void;
 	playNext: () => void;
 	playPrevious: () => void;
 }
@@ -19,6 +21,7 @@ interface PlayerStore {
 export const usePlayerStore = create<PlayerStore>((set, get) => ({
 	currentSong: null,
 	isPlaying: false,
+	isMuted: false,
 	queue: [],
 	currentIndex: -1,
 
@@ -87,6 +90,12 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 		});
 	},
 
+	toggleMute: () => {
+		set((state) => ({
+			isMuted: !state.isMuted
+		}));
+	},
+
 	playNext: () => {
 		const { currentIndex, queue } = get();
 		const nextIndex = currentIndex + 1;
@@ -121,6 +130,7 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 			}
 		}
 	},
+
 	playPrevious: () => {
 		const { currentIndex, queue } = get();
 		const prevIndex = currentIndex - 1;

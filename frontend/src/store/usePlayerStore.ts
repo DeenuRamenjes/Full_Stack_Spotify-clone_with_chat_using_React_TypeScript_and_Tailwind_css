@@ -59,31 +59,17 @@ const usePlayerStore = create<PlayerState>((set, get) => ({
   setQueue: (songs) => set({ queue: songs }),
 
   playNext: () => set((state) => {
-    if (state.queue.length === 0) return state;
-    
-    const nextIndex = state.currentIndex + 1;
-    if (nextIndex >= state.queue.length) return state;
-    
-    return {
-      currentSong: state.queue[nextIndex],
-      currentIndex: nextIndex,
-      isPlaying: true,
-      currentTime: 0
-    };
+    if (!state.queue.length) return state;
+    const currentIndex = state.queue.findIndex(song => song._id === state.currentSong?._id);
+    const nextIndex = (currentIndex + 1) % state.queue.length;
+    return { currentSong: state.queue[nextIndex], isPlaying: true };
   }),
 
   playPrevious: () => set((state) => {
-    if (state.queue.length === 0) return state;
-    
-    const prevIndex = state.currentIndex - 1;
-    if (prevIndex < 0) return state;
-    
-    return {
-      currentSong: state.queue[prevIndex],
-      currentIndex: prevIndex,
-      isPlaying: true,
-      currentTime: 0
-    };
+    if (!state.queue.length) return state;
+    const currentIndex = state.queue.findIndex(song => song._id === state.currentSong?._id);
+    const prevIndex = (currentIndex - 1 + state.queue.length) % state.queue.length;
+    return { currentSong: state.queue[prevIndex], isPlaying: true };
   }),
 }));
 

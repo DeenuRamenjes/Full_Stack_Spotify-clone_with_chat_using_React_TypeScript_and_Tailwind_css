@@ -25,7 +25,7 @@ const HomePage = () => {
     const fetchSongs = async () => {
       try {
         console.log('Fetching songs...');
-        const [featured, madeForYou, trending] = await Promise.all([
+        await Promise.all([
           fetchFeaturedSongs(),
           fetchMadeForYouSongs(),
           fetchTrendingSongs()

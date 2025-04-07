@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { 
   Play, 
   Pause, 
@@ -8,6 +8,7 @@ import {
   VolumeX 
 } from 'lucide-react';
 import usePlayerStore from '@/store/usePlayerStore';
+import { Slider } from "@/components/ui/slider"
 
 const formatTime = (time: number) => {
   const minutes = Math.floor(time / 60);

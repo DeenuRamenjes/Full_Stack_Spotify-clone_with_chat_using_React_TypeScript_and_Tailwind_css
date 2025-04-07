@@ -4,51 +4,122 @@ import { useEffect } from "react"
 import FeaturedSection from "./component/FeaturedSection"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import SectionGrid from "./component/SectionGrid"
-import { usePlayerStore } from "@/stores/usePlayerStore"
+import usePlayerStore from "@/store/usePlayerStore"
+import { Song } from '@/types/song'
 
 const HomePage = () => {
-
-  const {initializeQueue} = usePlayerStore()
-
   const {
     fetchFeaturedSongs,
     fetchMadeForYouSongs,
     fetchTrendingSongs,
-    isLoading,
-    madeForYouSongs,
-    featuredSongs,  
-    trendingSongs,
-  }=useMusicStore()
+    isLoading: musicStoreLoading,
+    madeForYouSongs: musicStoreMadeForYouSongs,
+    featuredSongs: musicStoreFeaturedSongs,
+    trendingSongs: musicStoreTrendingSongs,
+    error: musicStoreError
+  } = useMusicStore()
+
+  const { currentSong, isPlaying, playSong, pauseSong, setQueue } = usePlayerStore()
 
   useEffect(() => {
-    fetchFeaturedSongs()
-    fetchMadeForYouSongs()
-    fetchTrendingSongs()
-  },[fetchFeaturedSongs,fetchMadeForYouSongs,fetchTrendingSongs])
+    const fetchSongs = async () => {
+      try {
+        console.log('Fetching songs...');
+        const [featured, madeForYou, trending] = await Promise.all([
+          fetchFeaturedSongs(),
+          fetchMadeForYouSongs(),
+          fetchTrendingSongs()
+        ]);
+        console.log('Featured songs:', musicStoreFeaturedSongs);
+        console.log('Made for you songs:', musicStoreMadeForYouSongs);
+        console.log('Trending songs:', musicStoreTrendingSongs);
+      } catch (error) {
+        console.error('Error fetching songs:', error);
+      }
+    }
 
+    fetchSongs()
+  }, [fetchFeaturedSongs, fetchMadeForYouSongs, fetchTrendingSongs])
 
   useEffect(() => {
-    if(madeForYouSongs.length > 0 && featuredSongs.length>0 && trendingSongs.length>0){
-      const allSongs=[...madeForYouSongs,...featuredSongs,...trendingSongs]
-      initializeQueue(allSongs)
-    } 
-  },[initializeQueue,madeForYouSongs,featuredSongs,trendingSongs])
+    if (!musicStoreLoading) {
+      const allSongs = [
+        ...musicStoreMadeForYouSongs,
+        ...musicStoreFeaturedSongs,
+        ...musicStoreTrendingSongs
+      ]
+      if (allSongs.length > 0) {
+        setQueue(allSongs)
+      }
+    }
+  }, [musicStoreLoading, musicStoreMadeForYouSongs, musicStoreFeaturedSongs, musicStoreTrendingSongs, setQueue])
 
+  const handlePlayPause = (song: Song) => {
+    if (currentSong?._id === song._id) {
+      if (isPlaying) {
+        pauseSong()
+      } else {
+        playSong(song)
+      }
+    } else {
+      playSong(song)
+    }
+  }
+
+  if (musicStoreError) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Topbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-red-500 text-center p-4">
+            <p className="text-lg font-semibold">Error loading songs</p>
+            <p className="text-sm">{musicStoreError}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (musicStoreLoading) {
+    return (
+      <div className="flex flex-col h-screen">
+        <Topbar />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900">
-      <Topbar/>
-      <ScrollArea className="h-[calc(100vh-180px)]">
-        <div className="p-3 sm:p-6">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6">Good Afternoon</h1>
-          <FeaturedSection/>
-          <div className="space-y-4 sm:space-y-6">
-            <SectionGrid title="Made For You" songs={madeForYouSongs} isLoading={isLoading} />
-            <SectionGrid title="Trending" songs={trendingSongs} isLoading={isLoading}/>
+    <div className="flex flex-col h-screen">
+      <Topbar />
+      <ScrollArea className="flex-1 h-[calc(100vh-80px)]">
+        <div className="p-4 md:p-6 space-y-6 md:space-y-8">
+          <FeaturedSection />
+          <div className="space-y-6 md:space-y-8">
+            <SectionGrid 
+              title="Made For You" 
+              songs={musicStoreMadeForYouSongs} 
+              isLoading={musicStoreLoading} 
+              onPlayPause={handlePlayPause}
+            />
+            <SectionGrid 
+              title="Featured" 
+              songs={musicStoreFeaturedSongs} 
+              isLoading={musicStoreLoading} 
+              onPlayPause={handlePlayPause}
+            />
+            <SectionGrid 
+              title="Trending" 
+              songs={musicStoreTrendingSongs} 
+              isLoading={musicStoreLoading} 
+              onPlayPause={handlePlayPause}
+            />
           </div>
         </div>
       </ScrollArea>
-    </main>
+    </div>
   )
 }
 

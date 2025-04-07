@@ -1,188 +1,152 @@
-import { usePlayerStore } from "@/stores/usePlayerStore"
-import { useState,useRef, useEffect } from "react"
-import { Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1, Volume2, VolumeX } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { useEffect, useRef } from 'react';
+import { 
+  Play, 
+  Pause, 
+  SkipBack, 
+  SkipForward, 
+  Volume2, 
+  VolumeX 
+} from 'lucide-react';
+import usePlayerStore from '@/store/usePlayerStore';
 
-
-
+const formatTime = (time: number) => {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
 
 const PlaybackControls = () => {
-    const {currentSong,isPlaying,togglePlay,playNext,playPrevious,isMuted,toggleMute}=usePlayerStore()
+  const {
+    currentSong,
+    isPlaying,
+    volume,
+    isMuted,
+    currentTime,
+    duration,
+    playSong,
+    pauseSong,
+    setVolume,
+    toggleMute,
+    setCurrentTime,
+    playNext,
+    playPrevious
+  } = usePlayerStore();
 
-    const [currentTime,setCurrentTime]=useState(0)
-    const [duration, setDuration]=useState(0)
-    const [volume,setVolume]=useState(1)
-    
-    const audioRef=useRef<HTMLAudioElement | null>(null)
+  const progressRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-      audioRef.current=document.querySelector('audio')
-
-      const audio=audioRef.current
-      if(!audio) return
-
-      const updateTime = () => setCurrentTime(audio.currentTime)
-      const updateDuration = () => setDuration(audio.duration)
-
-      audio.addEventListener('timeupdate',updateTime)
-      audio.addEventListener('loadedmetadata',updateDuration)
-
-      const handleEnded = () => {
-        usePlayerStore.setState({isPlaying:false})
-      }
-      
-      audio.addEventListener("ended",handleEnded)
-
-      return () => {
-        audio.removeEventListener('timeupdate',updateTime)
-        audio.removeEventListener('loadedmetadata',updateDuration)
-        audio.removeEventListener("ended",handleEnded)
-      }
-    },[currentSong])
-
-    useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume;
-            audioRef.current.muted = isMuted;
-        }
-    }, [volume, isMuted]);
-
-    const formatTime = (time: number) => {
-        const minutes = Math.floor(time / 60);
-        const seconds = Math.floor(time % 60);
-        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    };
-
-    const handleSeek =(value:number[]) => {
-      if(audioRef.current) {
-        audioRef.current.currentTime=value[0]
-        setCurrentTime(value[0])
-      }
+  const handlePlayPause = () => {
+    if (!currentSong) return;
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      playSong(currentSong);
     }
+  };
 
-    const handleVolumeChange = (value: number[]) => {
-      setVolume(value[0] / 100);
-      if (audioRef.current) {
-        audioRef.current.volume = value[0] / 100;
-      }
-    };
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value);
+    setVolume(newVolume);
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressRef.current || !currentSong) return;
+    
+    const rect = progressRef.current.getBoundingClientRect();
+    const clickPosition = e.clientX - rect.left;
+    const progressWidth = rect.width;
+    const newTime = (clickPosition / progressWidth) * duration;
+    
+    setCurrentTime(newTime);
+    const audio = document.querySelector('audio');
+    if (audio) {
+      audio.currentTime = newTime;
+    }
+  };
+
+  if (!currentSong) {
+    return (
+      <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center justify-center">
+        <p className="text-gray-400">No song selected</p>
+      </div>
+    );
+  }
 
   return (
-    <footer className='h-20 sm:h-24 bg-zinc-900 border-t border-zinc-800 px-2 sm:px-4'>
-			<div className='flex justify-between items-center h-full max-w-[1800px] mx-auto'>
-				{/* currently playing song - hidden on mobile */}
-				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%]'>
-					{currentSong && (
-						<>
-							<img
-								src={currentSong.imageUrl}
-								alt={currentSong.title}
-								className='w-14 h-14 object-cover rounded-md'
-							/>
-							<div className='flex-1 min-w-0'>
-								<div className='font-medium truncate hover:underline cursor-pointer'>
-									{currentSong.title}
-								</div>
-								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
-									{currentSong.artist}
-								</div>
-							</div>
-						</>
-					)}
-				</div>
+    <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center px-4">
+      {/* Song Info */}
+      <div className="flex items-center w-1/4 min-w-0">
+        <img
+          src={currentSong.imageUrl}
+          alt={currentSong.title}
+          className="w-12 h-12 rounded-md object-cover flex-shrink-0"
+        />
+        <div className="ml-3 min-w-0">
+          <h3 className="text-white font-medium truncate" title={currentSong.title}>
+            {currentSong.title}
+          </h3>
+          <p className="text-gray-400 text-sm truncate" title={currentSong.artist}>
+            {currentSong.artist}
+          </p>
+        </div>
+      </div>
 
-				{/* player controls - centered on mobile */}
-				<div className='flex-1 flex flex-col items-center justify-center gap-1 sm:gap-4'>
-					<div className='flex items-center gap-2 sm:gap-6'>
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hidden sm:inline-flex hover:text-white text-zinc-400'
-						>
-							<Shuffle className='h-4 w-4' />
-						</Button>
+      {/* Playback Controls */}
+      <div className="flex-1 flex flex-col items-center min-w-0">
+        <div className="flex items-center space-x-4">
+          <button 
+            onClick={playPrevious}
+            className="text-gray-400 hover:text-white"
+          >
+            <SkipBack size={20} />
+          </button>
+          <button
+            onClick={handlePlayPause}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-black hover:scale-105 transition-transform"
+          >
+            {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+          </button>
+          <button 
+            onClick={playNext}
+            className="text-gray-400 hover:text-white"
+          >
+            <SkipForward size={20} />
+          </button>
+        </div>
 
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hover:text-white text-zinc-400'
-							onClick={playPrevious}
-							disabled={!currentSong}
-						>
-							<SkipBack className='h-4 w-4' />
-						</Button>
+        {/* Progress Bar */}
+        <div className="w-full flex items-center space-x-2 mt-2">
+          <span className="text-xs text-gray-400 whitespace-nowrap">{formatTime(currentTime)}</span>
+          <div
+            ref={progressRef}
+            className="flex-1 h-1 bg-gray-700 rounded-full cursor-pointer"
+            onClick={handleProgressClick}
+          >
+            <div
+              className="h-full bg-green-500 rounded-full"
+              style={{ width: `${(currentTime / duration) * 100}%` }}
+            />
+          </div>
+          <span className="text-xs text-gray-400 whitespace-nowrap">{formatTime(duration)}</span>
+        </div>
+      </div>
 
-						<Button
-							size='icon'
-							className='bg-white hover:bg-white/80 text-black rounded-full h-10 w-10 sm:h-8 sm:w-8'
-							onClick={togglePlay}
-							disabled={!currentSong}
-						>
-							{isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
-						</Button>
+      {/* Volume Controls */}
+      <div className="flex items-center space-x-2 ml-4">
+        <button onClick={toggleMute} className="text-gray-400 hover:text-white">
+          {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+        </button>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={handleVolumeChange}
+          className="w-24 accent-green-500"
+        />
+      </div>
+    </div>
+  );
+};
 
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hover:text-white text-zinc-400'
-							onClick={playNext}
-							disabled={!currentSong}
-						>
-							<SkipForward className='h-4 w-4' />
-						</Button>
-
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hidden sm:inline-flex hover:text-white text-zinc-400'
-						>
-							<Repeat className='h-4 w-4' />
-						</Button>
-					</div>
-
-					{/* Progress bar - simplified on mobile */}
-					<div className='hidden sm:flex items-center gap-2 w-full max-w-[500px]'>
-						<div className='text-xs text-zinc-400'>{formatTime(currentTime)}</div>
-						<Slider
-							value={[currentTime]}
-							max={duration || 100}
-							step={1}
-							className='w-full hover:cursor-grab active:cursor-grabbing'
-							onValueChange={handleSeek}
-						/>
-						<div className='text-xs text-zinc-400'>{formatTime(duration)}</div>
-					</div>
-				</div>
-
-				{/* volume controls - hidden on mobile */}
-				<div className='hidden sm:flex items-center gap-2 w-[30%] justify-end'>
-					<Button
-						size='icon'
-						variant='ghost'
-						className='hover:text-white text-zinc-400'
-						onClick={toggleMute}
-					>
-						{isMuted ? (
-							<VolumeX className='h-4 w-4' />
-						) : volume > 0.5 ? (
-							<Volume2 className='h-4 w-4' />
-						) : (
-							<Volume1 className='h-4 w-4' />
-						)}
-					</Button>
-					<Slider
-						value={[volume * 100]}
-						max={100}
-						step={1}
-						className='w-24 hover:cursor-grab active:cursor-grabbing'
-						onValueChange={handleVolumeChange}
-					/>
-				</div>
-			</div>
-		</footer>
-  )
-}
-
-
-export default PlaybackControls
+export default PlaybackControls;

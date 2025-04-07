@@ -2,7 +2,7 @@ import {Outlet} from 'react-router-dom';
 import {ResizablePanelGroup, ResizablePanel, ResizableHandle} from '@/components/ui/resizable';
 import LeftSidebar from './component/LeftSidebar';
 import FriendsActivity from './component/FriendsActivity';
-import AudioPlayer from './component/AudioPlayer';
+import AudioPlayer from '@/components/AudioPlayer';
 import PlaybackControls from './component/PlaybackControls';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';

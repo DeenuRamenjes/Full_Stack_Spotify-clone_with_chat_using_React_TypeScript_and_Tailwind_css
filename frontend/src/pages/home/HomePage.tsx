@@ -5,7 +5,7 @@ import FeaturedSection from "./component/FeaturedSection"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import SectionGrid from "./component/SectionGrid"
 import usePlayerStore from "@/store/usePlayerStore"
-import { Song } from '@/types/song'
+import { Song } from '@/types'
 
 const HomePage = () => {
   const {

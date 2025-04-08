@@ -2,17 +2,24 @@ import { useEffect } from "react"
 import { useMusicStore } from "@/stores/useMusicStore"
 import { Play, Pause } from "lucide-react"
 import usePlayerStore from "@/store/usePlayerStore"
-import { Song } from "@/types/song"
+import { Song } from "@/types/index"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import Topbar from "@/components/Topbar"
 
 const SongsPage = () => {
   const { songs, isLoading, fetchSongs } = useMusicStore()
-  const { currentSong, isPlaying, playSong, pauseSong } = usePlayerStore()
+  const { currentSong, isPlaying, playSong, pauseSong, setQueue } = usePlayerStore()
 
   useEffect(() => {
     fetchSongs()
   }, [fetchSongs])
+
+  // Set the queue when songs are loaded
+  useEffect(() => {
+    if (songs.length > 0) {
+      setQueue(songs)
+    }
+  }, [songs, setQueue])
 
   const handlePlayPause = (song: Song) => {
     if (currentSong?._id === song._id) {

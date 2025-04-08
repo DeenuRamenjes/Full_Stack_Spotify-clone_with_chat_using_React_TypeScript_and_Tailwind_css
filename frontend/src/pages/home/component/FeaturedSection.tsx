@@ -2,7 +2,7 @@ import { useMusicStore } from "@/stores/useMusicStore";
 import FeaturedGridSkeleton from "@/components/skeletons/FeaturedGridSkeleton";
 import { Play, Pause } from "lucide-react";
 import usePlayerStore from "@/store/usePlayerStore";
-import { Song } from "@/types/song";
+import { Song } from "@/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router-dom";
 

@@ -1,6 +1,7 @@
-import { Song } from "@/types/song"
+import { Song } from "@/types"
 import { Play, Pause } from "lucide-react"
 import usePlayerStore from "@/store/usePlayerStore"
+import { Link } from "react-router-dom"
 
 interface SectionGridProps {
     title: string;
@@ -40,7 +41,17 @@ const SectionGrid = ({ title, songs, isLoading, onPlayPause }: SectionGridProps)
 
     return (
         <div className="space-y-4">
-            <h2 className="text-2xl font-bold">{title}</h2>
+    
+            <h2 className="text-2xl flex"> <b> {title}</b>
+            <Link 
+                to="/songs" 
+                className="text-sm text-zinc-400 hover:text-white transition-colors ml-auto"
+            >
+                View All
+            </Link>
+
+            </h2>
+            
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {songs.map((song) => (
                     <div

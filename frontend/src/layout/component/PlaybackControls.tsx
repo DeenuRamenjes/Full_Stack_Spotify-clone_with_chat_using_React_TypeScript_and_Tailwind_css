@@ -1,12 +1,5 @@
 import { useRef } from 'react';
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2,
-  VolumeX 
-} from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2,VolumeX, Shuffle,Repeat} from 'lucide-react';
 import usePlayerStore from '@/store/usePlayerStore';
 
 const formatTime = (time: number) => {
@@ -71,6 +64,20 @@ const PlaybackControls = () => {
     );
   }
 
+  const isMobile=window.innerWidth<768
+
+  // const [isMobile, setIsMobile] = useState(false);
+  
+  //     useEffect(() => {
+  //         const checkMobile = () => {
+  //             setIsMobile(window.innerWidth < 768);
+  //         };
+  
+  //         checkMobile();
+  //         window.addEventListener("resize", checkMobile);
+  //         return () => window.removeEventListener("resize", checkMobile);
+  //     }, []);
+
   return (
     <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center px-4">
       {/* Song Info */}
@@ -92,7 +99,12 @@ const PlaybackControls = () => {
 
       {/* Playback Controls */}
       <div className="flex-1 flex flex-col items-center min-w-0">
-        <div className="flex items-center space-x-4">
+        <div className={`flex items-center space-x-4 ${isMobile ? '':'gap-4'}`}>
+          <button 
+            className={`text-gray-400 hover:text-white  ${isMobile ? 'hidden' : ''}`}
+          >
+            <Repeat size={20} />
+          </button>
           <button 
             onClick={playPrevious}
             className="text-gray-400 hover:text-white"
@@ -110,6 +122,11 @@ const PlaybackControls = () => {
             className="text-gray-400 hover:text-white"
           >
             <SkipForward size={20} />
+          </button>
+          <button 
+            className={`text-gray-400 hover:text-white ${isMobile ? 'hidden' : ''}`}
+          >
+            <Shuffle size={20} />
           </button>
         </div>
 
@@ -131,7 +148,7 @@ const PlaybackControls = () => {
       </div>
 
       {/* Volume Controls */}
-      <div className="flex items-center space-x-2 ml-4">
+      <div className={`flex items-center space-x-2 ${isMobile ? '' : 'ml-4'}`}>
         <button onClick={toggleMute} className="text-gray-400 hover:text-white">
           {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
         </button>
@@ -142,7 +159,7 @@ const PlaybackControls = () => {
           step="0.01"
           value={volume}
           onChange={handleVolumeChange}
-          className="w-24 accent-green-500"
+          className={`accent-green-500 ${isMobile ? 'w-15' : 'w-24'}`}
         />
       </div>
     </div>

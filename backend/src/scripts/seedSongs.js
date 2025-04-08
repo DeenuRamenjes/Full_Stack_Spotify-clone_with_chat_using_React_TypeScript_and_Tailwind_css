@@ -20,6 +20,12 @@ const getDuration = async (filePath) => {
     }
 };
 
+const getRandomCoverImage = () => {
+    const coverImages = fs.readdirSync(COVER_IMAGES_DIR);
+    const randomImage = coverImages[Math.floor(Math.random() * coverImages.length)];
+    return `/cover-images/${randomImage}`;
+};
+
 const seedSongs = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI);
@@ -58,8 +64,12 @@ const seedSongs = async () => {
                 title: songTitle,
                 artist,
                 audioUrl: `/songs/${file}`,
-                imageUrl: '/cover-images/default.jpg', // Default cover image
-                duration
+                imageUrl: getRandomCoverImage(),
+                duration,
+                isFeatured: Math.random() > 0.5,
+                isTrending: Math.random() > 0.5,
+                genre: ['Pop', 'Rock', 'Hip-Hop', 'R&B', 'Electronic'][Math.floor(Math.random() * 5)],
+                releaseDate: new Date(Date.now() - Math.floor(Math.random() * 1000 * 60 * 60 * 24 * 365 * 2)) // Random date within last 2 years
             };
         }));
 

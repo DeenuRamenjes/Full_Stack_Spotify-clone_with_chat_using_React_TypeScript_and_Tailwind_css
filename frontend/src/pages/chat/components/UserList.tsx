@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useChatStore } from "@/stores/useChatStore"
 
 const UserList = () => {
-    const {users,selectedUser,isLoading,setSelectedUser,onlineUsers}=useChatStore()
+    const {users,selectedUser,isLoading,setSelectedUser,onlineUsers,userActivities}=useChatStore()
   return (
     <div className="border-r border-zinc-800">
         <div className="flex flex-col h-full">
@@ -32,6 +32,11 @@ const UserList = () => {
 
 									<div className='flex-1 min-w-0 lg:block hidden'>
 										<span className='font-medium truncate'>{user.name}</span>
+                                        {userActivities.has(user.clerkId) && (
+                                            <p className="text-xs text-zinc-400 truncate">
+                                                {userActivities.get(user.clerkId)}
+                                            </p>
+                                        )}
 									</div>
 
                             </div>

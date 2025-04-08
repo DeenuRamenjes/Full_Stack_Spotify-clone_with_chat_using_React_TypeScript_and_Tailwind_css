@@ -1,4 +1,3 @@
-
 import { useChatStore } from "@/stores/useChatStore";
 import { Music, Users } from "lucide-react";
 import { useEffect } from "react";
@@ -29,9 +28,13 @@ const FriendsActivity = () => {
       <ScrollArea className="flex-1">
         <div className='p-4 space-y-4'>
           {users.map((user) => {
+			const activity = userActivities.get(user.clerkId) || "Idle";
+			const isPlaying = activity !== "Idle";
+			const [songName, artistName] = activity !== "Idle"
+				? activity.replace("Playing ", "").split(" by ")
+				: ["", ""];
 
-			const activity=userActivities.get(user.clerkId);
-			const isPlaying=activity && activity !=="Idle";
+			console.log(activity, isPlaying);
 		  
 		  return(
             <div
@@ -45,11 +48,11 @@ const FriendsActivity = () => {
                       <AvatarFallback>{user.name[0]}</AvatarFallback>
                     </Avatar>
                     <div
-											className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-900
-												${onlineUsers.has(user.clerkId) ? "bg-green-500" : "bg-zinc-500"}
-												`}
-											aria-hidden='true'
-										/>
+						className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-zinc-900
+							${onlineUsers.has(user.clerkId) ? "bg-green-500" : "bg-zinc-500"}
+							`}
+						aria-hidden='true'
+					/>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -57,17 +60,17 @@ const FriendsActivity = () => {
                       {isPlaying && <Music className="size-3.5 text-emerald-400 shrink-0" />}
                     </div>
                     {isPlaying ? (
-											<div className='mt-1'>
-												<div className='mt-1 text-sm text-white font-medium truncate'>
-													{activity.replace("Playing ", "").split(" by ")[0]}
-												</div>
-												<div className='text-xs text-zinc-400 truncate'>
-													{activity.split(" by ")[1]}
-												</div>
-											</div>
-										) : (
-											<div className='mt-1 text-xs text-zinc-400'>Idle</div>
-										)}
+						<div className='mt-1'>
+							<div className='mt-1 text-sm text-white font-medium truncate'>
+								{songName}
+							</div>
+							<div className='text-xs text-zinc-400 truncate'>
+								{artistName}
+							</div>
+						</div>
+					) : (
+						<div className='mt-1 text-xs text-zinc-400'>Idle</div>
+					)}
                   </div>
                 </div>
             </div>

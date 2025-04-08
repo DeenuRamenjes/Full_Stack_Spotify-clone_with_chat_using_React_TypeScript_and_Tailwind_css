@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import usePlayerStore from '@/store/usePlayerStore';
+import { useChatStore } from '@/stores/useChatStore';
+import { useUser } from '@clerk/clerk-react';
 
 const AudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { user } = useUser();
+  const { socket } = useChatStore();
   const { 
     currentSong, 
     isPlaying, 
@@ -91,6 +95,16 @@ const AudioPlayer = () => {
       audioRef.current.muted = isMuted;
     }
   }, [volume, isMuted]);
+
+  // Emit activity updates when song changes or play state changes
+  useEffect(() => {
+    if (user && socket && currentSong) {
+      const activity = isPlaying 
+        ? `Listening to ${currentSong.title} by ${currentSong.artist}`
+        : '';
+      socket.emit('update_activity', { userId: user.id, activity });
+    }
+  }, [currentSong, isPlaying, user, socket]);
 
   if (!currentSong) return null;
 

@@ -9,13 +9,14 @@ import { cn } from '@/lib/utils'
 
 const Topbar = () => {
     const {isAdmin} = useAuthStore()
-    console.log("isAdmin",{isAdmin})
+    
+    // console.log("isAdmin",{isAdmin})
   return (
     <div className="flex items-center justify-between p-4 sticky top-0 bg-zinc-900/75 backdrop-blur-md z-10">
-        <div className="flex gap-2 items-center">
-            <img src="/spotify.png" alt="Logo" className='size-8' />
-            Spotify
-        </div>
+        <Link to={"/"} className='flex items-center'> 
+                    <img src="/spotify.png" alt="Spotify" className="size-8 mr-2"/>
+                    Spotify
+        </Link>
         <div className="flex gap-4 items-center">
             {isAdmin && (
                 <Link to={"/admin"} className={cn(buttonVariants({variant:"outline"}))}> 

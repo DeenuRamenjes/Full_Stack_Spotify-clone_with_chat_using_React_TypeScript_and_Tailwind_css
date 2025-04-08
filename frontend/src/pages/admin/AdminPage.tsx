@@ -7,6 +7,8 @@ import SongsTabContent from "./component/SongsTabContent";
 import AlbumsTabContent from "./component/AlbumsTabContent";
 import { useEffect } from "react";
 import { useMusicStore } from "@/stores/useMusicStore";
+import ForbiddenPage from "./component/ForbiddenMessage";
+
 
 const AdminPage = () => {
 	const { isAdmin, isLoading } = useAuthStore();
@@ -19,7 +21,7 @@ const AdminPage = () => {
 		fetchStats();
 	}, [fetchAlbums, fetchSongs, fetchStats]);
 
-	if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
+	if (!isAdmin && !isLoading) return <ForbiddenPage />
 
 	return (
 		<div

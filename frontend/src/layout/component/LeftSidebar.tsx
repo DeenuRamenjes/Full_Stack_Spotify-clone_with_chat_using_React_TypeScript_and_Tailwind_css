@@ -1,7 +1,7 @@
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { SignedIn } from "@clerk/clerk-react"
-import { HomeIcon, Library, MessageCircle } from "lucide-react"
+import { HomeIcon, Library, MessageCircle, Music } from "lucide-react"
 import { Link } from "react-router-dom"
 import {ScrollArea} from '@/components/ui/scroll-area'
 import PlaylistSkeleton from "@/components/skeletons/PlayListSkeleton"
@@ -25,6 +25,14 @@ const LeftSidebar = () => {
                     }))}>
                         <HomeIcon className="mr-2 size-5"/>
                         <span className="hidden md:inline">Home</span>
+                    </Link>
+
+                    <Link to={'/songs'} className={cn(buttonVariants({
+                        variant: 'ghost',
+                        className: 'w-full justify-start text-white hover:bg-zinc-800'
+                    }))}>
+                        <Music className="mr-2 size-5"/>
+                        <span className="hidden md:inline">Songs</span>
                     </Link>
 
                     <SignedIn>

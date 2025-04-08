@@ -92,9 +92,9 @@ const HomePage = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-100">
       <Topbar />
-      <ScrollArea className="flex-1 h-[calc(100vh-80px)]">
+      <ScrollArea className="flex-1 h-[calc(82vh-80px)]">
         <div className="p-4 md:p-6 space-y-6 md:space-y-8">
           <FeaturedSection />
           <div className="space-y-6 md:space-y-8">

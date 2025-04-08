@@ -7,6 +7,7 @@ import PlaybackControls from './component/PlaybackControls';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const MainLayout = () => {
     const [isMobile, setIsMobile] = useState(false);
@@ -37,7 +38,9 @@ const MainLayout = () => {
                     >
                         <Menu className="h-6 w-6" />
                     </Button>
+                    <Link to={"/"}>
                     <img src="/spotify.png" alt="Logo" className='size-8' />
+                    </Link>
                 </div>
             )}
             <ResizablePanelGroup direction='horizontal' className='flex-1 flex h-full overflow-hidden p-2'>
